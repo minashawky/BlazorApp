@@ -1,0 +1,29 @@
+﻿@page "/videoplayer"
+@inject IJSRuntime js
+
+<h3>VideoPlayer</h3>
+<button class="btn btn-primary" @onclick="StartBasicAgoraCall">Start Call</button>
+@if (showLeaveCall)
+{
+    <button class="btn btn-primary" @onclick="LeaveCall">Leave Call</button>
+}
+
+<div id="mainVideoContainer"></div>
+
+@code {
+
+    bool showLeaveCall = false;
+
+    private async Task StartBasicAgoraCall()
+    {
+        await js.StartBasicAgoraCall();
+        showLeaveCall = true;
+    }
+
+    private async Task LeaveCall()
+    {
+        await js.LeaveCall();
+        showLeaveCall = false;
+    }
+
+}
