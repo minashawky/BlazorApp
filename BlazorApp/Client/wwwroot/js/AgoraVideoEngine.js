@@ -34,10 +34,8 @@ async function startBasicCall() {
             playerContainer.id = user.uid;
             playerContainer.style.width = "640px";
             playerContainer.style.height = "480px";
-            alert(mainContainer);
             mainContainer.appendChild(playerContainer);
-            alert(mainContainer.children);
-
+            
             // Play the remote audio and video tracks
             // SDK dynamically creates a player in the container for playing the remote video track
             remoteVideoTrack.play(playerContainer);
