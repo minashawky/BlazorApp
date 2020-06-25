@@ -32,9 +32,10 @@ async function startBasicCall() {
             const playerContainer = document.createElement("div");
             // Specify the ID of the DIV container. You can use the `uid` of the remote user.
             playerContainer.id = user.uid;
-            playerContainer.style.width = "640px";
+            //playerContainer.style.width = "480px";
             playerContainer.style.height = "480px";
-            mainContainer.appendChild(playerContainer);
+            playerContainer.className = "col";
+            mainContainer.children[0].appendChild(playerContainer);
             
             // Play the remote audio and video tracks
             // SDK dynamically creates a player in the container for playing the remote video track
