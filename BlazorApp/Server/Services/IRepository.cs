@@ -1,14 +1,14 @@
-﻿using BlazorApp.WebAPI.Entities;
+﻿using BlazorApp.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BlazorApp.WebAPI.Services
+namespace BlazorApp.Server.Services
 {
     public interface IRepository
     {
-        List<Genre> GetAllGenres();
+        Task<List<Genre>> GetAllGenres();
         Genre GetGenreById(int id);
     }
 }
