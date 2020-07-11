@@ -25,13 +25,13 @@ namespace BlazorApp.Server.Controllers
         }
         // GET: api/<GenresController>
         [HttpGet]
-        public async Task<ActionResult<List<Genre>>> Get()
+        public ActionResult<List<Genre>> Get()
         {
-            return await repo.GetAllGenres();
+            return repo.GetAllGenres();
         }
 
         // GET api/<GenresController>/5
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "getGenre")]
         public ActionResult<Genre> Get(int id)
         {
             var genre = repo.GetGenreById(id);
@@ -44,7 +44,8 @@ namespace BlazorApp.Server.Controllers
         [HttpPost]
         public ActionResult Post([FromBody] Genre genre)
         {
-            return NoContent();
+            repo.AddGenre(genre);
+            return new CreatedAtRouteResult("getGenre", new { id = genre.Id }, genre);
         }
 
         // PUT api/<GenresController>/5

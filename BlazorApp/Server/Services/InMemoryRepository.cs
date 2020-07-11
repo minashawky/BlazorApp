@@ -17,15 +17,20 @@ namespace BlazorApp.Server.Services
                 new Genre() {Id=2, Name="Comedy"}
             };
         }
-        public async Task<List<Genre>> GetAllGenres()
+        public List<Genre> GetAllGenres()
         {
-            await Task.Delay(3000);
             return genres;
         }
 
         public Genre GetGenreById(int id)
         {
             return genres.FirstOrDefault(x => x.Id == id);
+        }
+
+        public void AddGenre(Genre genre)
+        {
+            genre.Id = genres.Max(x => x.Id) + 1;
+            genres.Add(genre);
         }
     }
 }

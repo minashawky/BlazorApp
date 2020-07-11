@@ -8,7 +8,8 @@ namespace BlazorApp.Server.Services
 {
     public interface IRepository
     {
-        Task<List<Genre>> GetAllGenres();
+        void AddGenre(Genre genre);
+        List<Genre> GetAllGenres();
         Genre GetGenreById(int id);
     }
 }
