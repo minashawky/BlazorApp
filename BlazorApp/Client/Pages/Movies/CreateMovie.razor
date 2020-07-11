@@ -1,0 +1,17 @@
+﻿@page "/movie/create"
+@inject NavigationManager navigationManager;
+
+<h3>Create Movie</h3>
+
+<MovieForm Movie="movie" OnValidSubmit="SaveMovie" />
+
+@code {
+
+    private Movie movie;
+
+    private void SaveMovie()
+    {
+        //navigationManager.NavigateTo("movie");
+    }
+
+}
