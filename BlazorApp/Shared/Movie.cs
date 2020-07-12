@@ -18,5 +18,6 @@ namespace BlazorApp.Shared
         public DateTime? ReleaseDate { get; set; }
         public string Poster { get; set; }
         public string TitleBrief { get { return Title.Substring(0, 15); } }
+        public List<MoviesGenres> MovieGenres { get; set; } = new List<MoviesGenres>();
     }
 }

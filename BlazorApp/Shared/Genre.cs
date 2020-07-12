@@ -10,5 +10,6 @@ namespace BlazorApp.Shared
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
+        public List<MoviesGenres> MovieGenres { get; set; } = new List<MoviesGenres>();
     }
 }
