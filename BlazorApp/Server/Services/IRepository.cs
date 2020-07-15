@@ -11,5 +11,10 @@ namespace BlazorApp.Server.Services
         void AddGenre(Genre genre);
         List<Genre> GetAllGenres();
         Genre GetGenreById(int id);
+
+        void AddMovie(Movie movie);
+        List<Movie> GetMovies();
+        Movie GetMovieById(int id);
+
     }
 }

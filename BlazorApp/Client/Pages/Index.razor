@@ -1,7 +1,35 @@
 ﻿@page "/"
+@inject HttpClient Http
 
-<h1>Hello, world!</h1>
+<div>
+    <h3>Movie</h3>
+    <MoviesList Movies="movies" />
+</div>
 
-Welcome to your new app.
+<CustomTypeahead SearchMethod="SearchMethod">
+    <ResultTemplate>
+        @context
+    </ResultTemplate>
+</CustomTypeahead>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code {
+
+    private List<Movie> movies;
+    protected async override Task OnInitializedAsync()
+    {
+        movies = await Http.GetFromJsonAsync<List<Movie>>("/api/movies");
+    }
+
+    private async Task<IEnumerable<string>> SearchMethod(string searchText)
+    {
+        await Task.Delay(2000);
+        if (searchText == "test")
+        {
+            return Enumerable.Empty<string>();
+        }
+
+        return new List<string>() { "Mina", "Shawky" };
+    }
+
+}

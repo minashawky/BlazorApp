@@ -22,5 +22,10 @@ namespace BlazorApp.Client.Helpers
         {
             await js.InvokeVoidAsync("leaveCall");
         }
+
+        public static async ValueTask MyFunction(this IJSRuntime js, string message)
+        {
+            await js.InvokeVoidAsync("my_function", message);
+        }
     }
 }

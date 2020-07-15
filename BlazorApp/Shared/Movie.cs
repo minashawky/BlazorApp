@@ -17,7 +17,25 @@ namespace BlazorApp.Shared
         [Required]
         public DateTime? ReleaseDate { get; set; }
         public string Poster { get; set; }
-        public string TitleBrief { get { return Title.Substring(0, 15); } }
+        public string TitleBrief
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Title))
+                {
+                    return null;
+                }
+
+                if (Title.Length > 60)
+                {
+                    return Title.Substring(0, 60) + "...";
+                }
+                else
+                {
+                    return Title;
+                }
+            }
+        }
         public List<MoviesGenres> MovieGenres { get; set; } = new List<MoviesGenres>();
     }
 }
