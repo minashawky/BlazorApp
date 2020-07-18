@@ -8,6 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Blazor.FileReader;
+using BlazorApp.Client.Helpers;
+using BlazorApp.Client.Repository;
+using BlazorApp.Shared;
 
 namespace BlazorApp.Client
 {
@@ -20,6 +23,8 @@ namespace BlazorApp.Client
 
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
+            builder.Services.AddScoped<IHttpService, HttpService>();
+            builder.Services.AddScoped<IGenreRepository, GenreRepository>();
 
             await builder.Build().RunAsync();
         }
