@@ -25,6 +25,7 @@ namespace BlazorApp.Client
             builder.Services.AddFileReaderService(options => options.InitializeOnFirstCall = true);
             builder.Services.AddScoped<IHttpService, HttpService>();
             builder.Services.AddScoped<IGenreRepository, GenreRepository>();
+            builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 
             await builder.Build().RunAsync();
         }
