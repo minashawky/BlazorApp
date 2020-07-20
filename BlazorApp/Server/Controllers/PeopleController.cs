@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorApp.Server.DB;
+using BlazorApp.Server.Helpers;
 using BlazorApp.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -17,11 +18,13 @@ namespace BlazorApp.Server.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly ILogger<GenresController> logger;
+        private readonly IFileStorageService fileStorageService;
 
-        public PeopleController(ApplicationDbContext context, ILogger<GenresController> logger)
+        public PeopleController(ApplicationDbContext context, ILogger<GenresController> logger, IFileStorageService fileStorageService)
         {
             this.context = context;
             this.logger = logger;
+            this.fileStorageService = fileStorageService;
         }
 
         // GET: api/<PeopleController>
@@ -45,6 +48,11 @@ namespace BlazorApp.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<int>> Post([FromBody] Person person)
         {
+            if(!string.IsNullOrEmpty(person.Picture))
+            {
+                var personPicture = Convert.FromBase64String(person.Picture);
+                person.Picture = await fileStorageService.SaveFile(personPicture, "jpg", "people");
+            }
             context.Add(person);
             await context.SaveChangesAsync();
             return person.Id;
