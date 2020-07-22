@@ -26,6 +26,7 @@ namespace BlazorApp.Client
             builder.Services.AddScoped<IHttpService, HttpService>();
             builder.Services.AddScoped<IGenreRepository, GenreRepository>();
             builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+            builder.Services.AddScoped<IMoviesRepository, MoviesRepository>();
 
             await builder.Build().RunAsync();
         }

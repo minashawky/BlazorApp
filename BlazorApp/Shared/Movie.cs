@@ -37,5 +37,6 @@ namespace BlazorApp.Shared
             }
         }
         public List<MoviesGenres> MovieGenres { get; set; } = new List<MoviesGenres>();
+        public List<MoviesActors> MovieActors { get; set; } = new List<MoviesActors>();
     }
 }

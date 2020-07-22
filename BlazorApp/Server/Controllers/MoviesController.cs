@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BlazorApp.Server.DB;
+using BlazorApp.Server.Helpers;
 using BlazorApp.Server.Services;
 using BlazorApp.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -15,27 +17,29 @@ namespace BlazorApp.Server.Controllers
     [ApiController]
     public class MoviesController : ControllerBase
     {
-        private readonly IRepository repo;
+        private readonly ApplicationDbContext context;
         private readonly ILogger<GenresController> logger;
+        private readonly IFileStorageService fileStorageService;
 
-        public MoviesController(IRepository repo, ILogger<GenresController> logger)
+        public MoviesController(ApplicationDbContext context, ILogger<GenresController> logger, IFileStorageService fileStorageService)
         {
-            this.repo = repo;
+            this.context = context;
             this.logger = logger;
+            this.fileStorageService = fileStorageService;
         }
 
         // GET: api/<MoviesController>
         [HttpGet]
         public ActionResult<List<Movie>> Get()
         {
-            return repo.GetMovies();
+            return context.Movies.ToList();
         }
 
         // GET api/<MoviesController>/5
         [HttpGet("{id}")]
         public ActionResult<Movie> Get(int id)
         {
-            var movie = repo.GetMovieById(id);
+            var movie = context.Movies.FirstOrDefault(x => x.Id == id);
             if (movie == null) return NotFound();
 
             return movie;
@@ -43,24 +47,16 @@ namespace BlazorApp.Server.Controllers
 
         // POST api/<MoviesController>
         [HttpPost]
-        public ActionResult Post([FromBody] Movie movie)
+        public async Task<ActionResult<int>> Post([FromBody] Movie movie)
         {
-            repo.AddMovie(movie);
-            return new CreatedAtRouteResult("getMovie", new { id = movie.Id }, movie);
-        }
-
-        // PUT api/<MoviesController>/5
-        [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody] Movie movie)
-        {
-            return NoContent();
-        }
-
-        // DELETE api/<MoviesController>/5
-        [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
-        {
-            return NoContent();
+            if (!string.IsNullOrEmpty(movie.Poster))
+            {
+                var posterPicture = Convert.FromBase64String(movie.Poster);
+                movie.Poster = await fileStorageService.SaveFile(posterPicture, "jpg", "movies");
+            }
+            context.Add(movie);
+            await context.SaveChangesAsync();
+            return movie.Id;
         }
     }
 }
