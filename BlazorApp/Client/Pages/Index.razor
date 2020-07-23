@@ -1,35 +1,26 @@
 ﻿@page "/"
-@inject HttpClient Http
+@inject IMoviesRepository moviesRepository
 
 <div>
-    <h3>Movie</h3>
-    <MoviesList Movies="movies" />
+    <h3>In Theatres</h3>
+    <MoviesList Movies="moviesInTheatre" />
 </div>
 
-<CustomTypeahead SearchMethod="SearchMethod">
-    <ResultTemplate>
-        @context
-    </ResultTemplate>
-</CustomTypeahead>
+<div>
+    <h3>Upcoming Releases</h3>
+    <MoviesList Movies="upcomingReleases" />
+</div>
 
 
 @code {
 
-    private List<Movie> movies;
+    private List<Movie> moviesInTheatre;
+    private List<Movie> upcomingReleases;
+
     protected async override Task OnInitializedAsync()
     {
-        movies = await Http.GetFromJsonAsync<List<Movie>>("/api/movies");
+        var response = await moviesRepository.GetIndexPageDTO();
+        moviesInTheatre = response.MoviesInTheatre;
+        upcomingReleases = response.UpcomingReleases;
     }
-
-    private async Task<IEnumerable<string>> SearchMethod(string searchText)
-    {
-        await Task.Delay(2000);
-        if (searchText == "test")
-        {
-            return Enumerable.Empty<string>();
-        }
-
-        return new List<string>() { "Mina", "Shawky" };
-    }
-
 }

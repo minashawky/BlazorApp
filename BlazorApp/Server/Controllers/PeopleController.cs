@@ -45,6 +45,17 @@ namespace BlazorApp.Server.Controllers
             return person;
         }
 
+        [HttpGet("search/{searchText}")]
+        public async Task<ActionResult<List<Person>>> FilterByName(string searchText)
+        {
+            if(string.IsNullOrWhiteSpace(searchText))
+            {
+                return new List<Person>();
+            }
+
+            return await context.People.Where(x => x.Name.Contains(searchText)).Take(5).ToListAsync();
+        }
+
         // POST api/<PeopleController>
         [HttpPost]
         public async Task<ActionResult<int>> Post([FromBody] Person person)

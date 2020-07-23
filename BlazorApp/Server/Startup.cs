@@ -30,7 +30,8 @@ namespace BlazorApp.Server
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")
                 ));
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddRazorPages();
             services.AddSingleton<IRepository, InMemoryRepository>();
             services.AddScoped<IFileStorageService, AzureStorageService>();
