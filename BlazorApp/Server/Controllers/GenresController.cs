@@ -6,6 +6,7 @@ using BlazorApp.Server.DB;
 using BlazorApp.Server.Services;
 using BlazorApp.Shared;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -26,9 +27,9 @@ namespace BlazorApp.Server.Controllers
         }
         // GET: api/<GenresController>
         [HttpGet]
-        public ActionResult<List<Genre>> Get()
+        public async Task<ActionResult<List<Genre>>> Get()
         {
-            return context.Genres.ToList();
+            return await context.Genres.ToListAsync();
         }
 
         // GET api/<GenresController>/5

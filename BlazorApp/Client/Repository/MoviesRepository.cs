@@ -10,7 +10,7 @@ namespace BlazorApp.Client.Repository
     public class MoviesRepository : IMoviesRepository
     {
         private readonly IHttpService httpService;
-        private string url = "api/movie";
+        private string url = "api/movies";
 
         public MoviesRepository(IHttpService httpService)
         {
