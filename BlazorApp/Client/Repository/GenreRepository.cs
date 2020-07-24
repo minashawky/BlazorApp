@@ -16,10 +16,20 @@ namespace BlazorApp.Client.Repository
         {
             this.httpService = httpService;
         }
+
         public async Task CreateGenre(Genre genre)
         {
             var response = await httpService.Post(url, genre);
             if(!response.Success)
+            {
+                throw new ApplicationException(await response.GetBody());
+            }
+        }
+
+        public async Task UpdateGenre(Genre genre)
+        {
+            var response = await httpService.Put(url, genre);
+            if (!response.Success)
             {
                 throw new ApplicationException(await response.GetBody());
             }
@@ -34,6 +44,26 @@ namespace BlazorApp.Client.Repository
             }
             
             return response.Response;
+        }
+
+        public async Task<Genre> GetGenre(int id)
+        {
+            var response = await httpService.Get<Genre>($"{url}/{id}");
+            if (!response.Success)
+            {
+                throw new ApplicationException(await response.GetBody());
+            }
+
+            return response.Response;
+        }
+
+        public async Task DeleteGenre(int id)
+        {
+            var response = await httpService.Delete($"{url}/{id}");
+            if (!response.Success)
+            {
+                throw new ApplicationException(await response.GetBody());
+            }
         }
     }
 }

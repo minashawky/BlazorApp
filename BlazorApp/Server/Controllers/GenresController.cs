@@ -33,10 +33,10 @@ namespace BlazorApp.Server.Controllers
         }
 
         // GET api/<GenresController>/5
-        [HttpGet("{id}", Name = "getGenre")]
-        public ActionResult<Genre> Get(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Genre>> Get(int id)
         {
-            var genre = context.Genres.FirstOrDefault(x => x.Id == id);
+            var genre = await context.Genres.FirstOrDefaultAsync(x => x.Id == id);
             if (genre == null) return NotFound();
 
             return genre;
@@ -51,17 +51,24 @@ namespace BlazorApp.Server.Controllers
             return genre.Id;
         }
 
-        // PUT api/<GenresController>/5
-        [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody] Genre genre)
+        // PUT api/<GenresController>/
+        [HttpPut]
+        public async Task<ActionResult> Put([FromBody] Genre genre)
         {
+            context.Attach(genre).State = EntityState.Modified;
+            await context.SaveChangesAsync();
             return NoContent();
         }
 
         // DELETE api/<GenresController>/5
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
+            var genre = await context.Genres.FirstOrDefaultAsync(x => x.Id == id);
+            if (genre == null) return NotFound();
+
+            context.Remove(genre);
+            await context.SaveChangesAsync();
             return NoContent();
         }
     }

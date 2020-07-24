@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using BlazorApp.Server.DB;
 using BlazorApp.Server.Helpers;
 using BlazorApp.Shared;
@@ -20,12 +21,18 @@ namespace BlazorApp.Server.Controllers
         private readonly ApplicationDbContext context;
         private readonly ILogger<GenresController> logger;
         private readonly IFileStorageService fileStorageService;
+        private readonly IMapper mapper;
+        private readonly string containerName = "people";
 
-        public PeopleController(ApplicationDbContext context, ILogger<GenresController> logger, IFileStorageService fileStorageService)
+        public PeopleController(ApplicationDbContext context, 
+            ILogger<GenresController> logger, 
+            IFileStorageService fileStorageService,
+            IMapper mapper)
         {
             this.context = context;
             this.logger = logger;
             this.fileStorageService = fileStorageService;
+            this.mapper = mapper;
         }
 
         // GET: api/<PeopleController>
@@ -37,9 +44,9 @@ namespace BlazorApp.Server.Controllers
 
         // GET api/<PeopleController>/5
         [HttpGet("{id}")]
-        public ActionResult<Person> Get(int id)
+        public async Task<ActionResult<Person>> Get(int id)
         {
-            var person = context.People.FirstOrDefault(x => x.Id == id);
+            var person = await context.People.FirstOrDefaultAsync(x => x.Id == id);
             if (person == null) return NotFound();
 
             return person;
@@ -63,11 +70,43 @@ namespace BlazorApp.Server.Controllers
             if(!string.IsNullOrEmpty(person.Picture))
             {
                 var personPicture = Convert.FromBase64String(person.Picture);
-                person.Picture = await fileStorageService.SaveFile(personPicture, "jpg", "people");
+                person.Picture = await fileStorageService.SaveFile(personPicture, "jpg", containerName);
             }
             context.Add(person);
             await context.SaveChangesAsync();
             return person.Id;
+        }
+
+        // PUT api/<PeopleController>
+        [HttpPut]
+        public async Task<ActionResult> Put([FromBody] Person person)
+        {
+            var personDb = await context.People.FirstOrDefaultAsync(x => x.Id == person.Id);
+            if (personDb == null) return NotFound();
+
+            personDb = mapper.Map(person, personDb);
+
+            if(!string.IsNullOrWhiteSpace(person.Picture))
+            {
+                var personPicture = Convert.FromBase64String(person.Picture);
+                personDb.Picture = await fileStorageService.EditFile(personPicture, 
+                    "jpg", containerName, personDb.Picture);
+            }
+
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // DELETE api/<PeopleController>/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var person = await context.People.FirstOrDefaultAsync(x => x.Id == id);
+            if (person == null) return NotFound();
+
+            context.Remove(person);
+            await context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }

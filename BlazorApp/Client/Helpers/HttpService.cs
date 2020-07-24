@@ -43,6 +43,14 @@ namespace BlazorApp.Client.Helpers
             return new HttpResponseWrapper<object>(null, response.IsSuccessStatusCode, response);
         }
 
+        public async Task<HttpResponseWrapper<object>> Put<T>(string url, T data)
+        {
+            var dataJson = JsonSerializer.Serialize(data);
+            var stringContent = new StringContent(dataJson, Encoding.UTF8, "application/json");
+            var response = await httpClient.PutAsync(url, stringContent);
+            return new HttpResponseWrapper<object>(null, response.IsSuccessStatusCode, response);
+        }
+
         public async Task<HttpResponseWrapper<TResponse>> Post<T, TResponse>(string url, T data)
         {
             var dataJson = JsonSerializer.Serialize(data);
@@ -63,6 +71,12 @@ namespace BlazorApp.Client.Helpers
         {
             var responseString = await httpResponse.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(responseString, options);
+        }
+
+        public async Task<HttpResponseWrapper<object>> Delete(string url)
+        {
+            var responseHttp = await httpClient.DeleteAsync(url);
+            return new HttpResponseWrapper<object>(null, responseHttp.IsSuccessStatusCode, responseHttp);
         }
     }
 }

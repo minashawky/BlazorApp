@@ -28,25 +28,37 @@ namespace BlazorApp.Client.Repository
             return response.Response;
         }
 
-        public async Task<IndexPageDTO> GetIndexPageDTO()
+        public async Task UpdateMovie(Movie movie)
         {
-            return await Get<IndexPageDTO>(url);
-        }
-
-        public async Task<MovieDetailsDTO> GetMovieDetailsDTO(int id)
-        {
-            return await Get<MovieDetailsDTO>($"{url}/{id}");
-        }
-
-        private async Task<T> Get<T>(string url)
-        {
-            var response = await httpService.Get<T>(url);
+            var response = await httpService.Put(url, movie);
             if (!response.Success)
             {
                 throw new ApplicationException(await response.GetBody());
             }
+        }
 
-            return response.Response;
+        public async Task<IndexPageDTO> GetIndexPageDTO()
+        {
+            return await httpService.GetHelper<IndexPageDTO>(url);
+        }
+
+        public async Task<MovieDetailsDTO> GetMovieDetailsDTO(int id)
+        {
+            return await httpService.GetHelper<MovieDetailsDTO>($"{url}/{id}");
+        }
+
+        public async Task<MovieUpdateDTO> GetMovieUpdateDTO(int id)
+        {
+            return await httpService.GetHelper<MovieUpdateDTO>($"{url}/update/{id}");
+        }
+
+        public async Task DeleteMovie(int id)
+        {
+            var response = await httpService.Delete($"{url}/{id}");
+            if (!response.Success)
+            {
+                throw new ApplicationException(await response.GetBody());
+            }
         }
     }
 }

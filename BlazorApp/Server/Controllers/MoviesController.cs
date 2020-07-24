@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using BlazorApp.Server.DB;
 using BlazorApp.Server.Helpers;
 using BlazorApp.Server.Services;
@@ -22,12 +23,18 @@ namespace BlazorApp.Server.Controllers
         private readonly ApplicationDbContext context;
         private readonly ILogger<GenresController> logger;
         private readonly IFileStorageService fileStorageService;
+        private readonly IMapper mapper;
+        private readonly string containerName = "movies";
 
-        public MoviesController(ApplicationDbContext context, ILogger<GenresController> logger, IFileStorageService fileStorageService)
+        public MoviesController(ApplicationDbContext context, 
+            ILogger<GenresController> logger, 
+            IFileStorageService fileStorageService,
+            IMapper mapper)
         {
             this.context = context;
             this.logger = logger;
             this.fileStorageService = fileStorageService;
+            this.mapper = mapper;
         }
 
         // GET: api/<MoviesController>
@@ -85,6 +92,28 @@ namespace BlazorApp.Server.Controllers
             return model;
         }
 
+        [HttpGet("update/{id}")]
+        public async Task<ActionResult<MovieUpdateDTO>> PutGet(int id)
+        {
+            var movieActionResult = await Get(id);
+            if (movieActionResult.Result is NotFoundResult) return NotFound();
+
+            var movieDetailDto = movieActionResult.Value;
+            var selectedGenresIds = movieDetailDto.Genres.Select(x => x.Id).ToList();
+            var notSelectedGenres = await context.Genres.
+                Where(x => !selectedGenresIds.Contains(x.Id)).ToListAsync();
+
+            var model = new MovieUpdateDTO()
+            {
+                Movie = movieDetailDto.Movie,
+                Actors = movieDetailDto.Actors,
+                SelectedGenres = movieDetailDto.Genres,
+                NotSelectedGenres = notSelectedGenres
+            };
+
+            return model;
+        }
+
         // POST api/<MoviesController>
         [HttpPost]
         public async Task<ActionResult<int>> Post([FromBody] Movie movie)
@@ -92,7 +121,7 @@ namespace BlazorApp.Server.Controllers
             if (!string.IsNullOrEmpty(movie.Poster))
             {
                 var posterPicture = Convert.FromBase64String(movie.Poster);
-                movie.Poster = await fileStorageService.SaveFile(posterPicture, "jpg", "movies");
+                movie.Poster = await fileStorageService.SaveFile(posterPicture, "jpg", containerName);
             }
 
             if(movie.MovieActors != null)
@@ -106,6 +135,51 @@ namespace BlazorApp.Server.Controllers
             context.Add(movie);
             await context.SaveChangesAsync();
             return movie.Id;
+        }
+
+        // POST api/<MoviesController>
+        [HttpPut]
+        public async Task<ActionResult> Put([FromBody] Movie movie)
+        {
+            var movieDb = await context.Movies.FirstOrDefaultAsync(x => x.Id == movie.Id);
+            if (movieDb == null) return NotFound();
+
+            movieDb = mapper.Map(movie, movieDb);
+
+            if (!string.IsNullOrWhiteSpace(movie.Poster))
+            {
+                var moviePoster = Convert.FromBase64String(movie.Poster);
+                movieDb.Poster = await fileStorageService.EditFile(moviePoster,
+                    "jpg", containerName, movieDb.Poster);
+            }
+
+            await context.Database.ExecuteSqlInterpolatedAsync($"delete from MoviesActors where MovieId = {movie.Id};delete from MoviesGenres where MovieId = {movie.Id};");
+
+            if (movie.MovieActors != null)
+            {
+                for (int i = 0; i < movie.MovieActors.Count; i++)
+                {
+                    movie.MovieActors[i].Order = i + 1;
+                }
+            }
+
+            movieDb.MovieActors = movie.MovieActors;
+            movieDb.MovieGenres = movie.MovieGenres;
+
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // DELETE api/<MoviesController>/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var movie = await context.Movies.FirstOrDefaultAsync(x => x.Id == id);
+            if (movie == null) return NotFound();
+
+            context.Remove(movie);
+            await context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }

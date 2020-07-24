@@ -10,6 +10,7 @@ using BlazorApp.Server.Services;
 using BlazorApp.Server.DB;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.Server.Helpers;
+using AutoMapper;
 
 namespace BlazorApp.Server
 {
@@ -35,6 +36,7 @@ namespace BlazorApp.Server
             services.AddRazorPages();
             services.AddSingleton<IRepository, InMemoryRepository>();
             services.AddScoped<IFileStorageService, AzureStorageService>();
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
