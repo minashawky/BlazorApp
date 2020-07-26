@@ -6,6 +6,7 @@ using AutoMapper;
 using BlazorApp.Server.DB;
 using BlazorApp.Server.Helpers;
 using BlazorApp.Shared;
+using BlazorApp.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -37,9 +38,11 @@ namespace BlazorApp.Server.Controllers
 
         // GET: api/<PeopleController>
         [HttpGet]
-        public async Task<ActionResult<List<Person>>> Get()
+        public async Task<ActionResult<List<Person>>> Get([FromQuery]PaginationDTO paginationDTO)
         {
-            return await context.People.ToListAsync();
+            var queryable = context.People.AsQueryable();
+            await HttpContext.InsertPaginationParametersInResponse(queryable, paginationDTO.RecordsPerPage);
+            return await queryable.Paginate(paginationDTO).ToListAsync();
         }
 
         // GET api/<PeopleController>/5

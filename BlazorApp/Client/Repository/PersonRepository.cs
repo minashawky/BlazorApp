@@ -1,5 +1,6 @@
 ﻿using BlazorApp.Client.Helpers;
 using BlazorApp.Shared;
+using BlazorApp.Shared.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,15 +35,9 @@ namespace BlazorApp.Client.Repository
             }
         }
 
-        public async Task<List<Person>> GetPeople()
+        public async Task<PaginatedResponse<List<Person>>> GetPeople(PaginationDTO paginationDTO)
         {
-            var response = await httpService.Get<List<Person>>(url);
-            if (!response.Success)
-            {
-                throw new ApplicationException(await response.GetBody());
-            }
-
-            return response.Response;
+            return await httpService.GetHelper<List<Person>>(url, paginationDTO);
         }
 
         public async Task<List<Person>> GetPeopleByName(string name)

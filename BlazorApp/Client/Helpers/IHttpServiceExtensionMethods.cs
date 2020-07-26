@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BlazorApp.Shared.DTO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +17,34 @@ namespace BlazorApp.Client.Helpers
             }
 
             return response.Response;
+        }
+
+        public static async Task<PaginatedResponse<T>> GetHelper<T>(this IHttpService httpService, string url, PaginationDTO paginationDTO)
+        {
+            string newUrl = string.Empty;
+            if(url.Contains("?"))
+            {
+                newUrl = $"{url}&page={paginationDTO.Page}&recordsPerPage={paginationDTO.RecordsPerPage}";
+            }
+            else
+            {
+                newUrl = $"{url}?page={paginationDTO.Page}&recordsPerPage={paginationDTO.RecordsPerPage}";
+            }
+
+            var httpResponse = await httpService.Get<T>(newUrl);
+            var totalAmountOfPages = int.Parse(httpResponse.HttpResponseMessage.Headers.GetValues("totalAmountPages").FirstOrDefault());
+            var paginatedResponse = new PaginatedResponse<T>()
+            {
+                Response = httpResponse.Response,
+                TotalAmountPages = totalAmountOfPages
+            };
+
+            if (!httpResponse.Success)
+            {
+                throw new ApplicationException(await httpResponse.GetBody());
+            }
+
+            return paginatedResponse;
         }
     }
 }
