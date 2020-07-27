@@ -33,7 +33,7 @@
                             <button class="btn btn-danger" @onclick="(() => DeletePerson(person.Id))">Delete</button>
                         </td>
                         <td>
-                            @person.Name
+                            <a href="/person/@person.Id/@person.Name.Replace(" ", "-")">@person.Name</a>
                         </td>
                     </tr>
                 }

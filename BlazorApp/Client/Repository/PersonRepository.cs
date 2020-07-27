@@ -51,9 +51,9 @@ namespace BlazorApp.Client.Repository
             return response.Response;
         }
 
-        public async Task<Person> GetPersonById(int id)
+        public async Task<PersonDetailsDTO> GetPersonById(int id)
         {
-            return await httpService.GetHelper<Person>($"{url}/{id}");
+            return await httpService.GetHelper<PersonDetailsDTO>($"{url}/{id}");
         }
 
         public async Task DeletePerson(int id)

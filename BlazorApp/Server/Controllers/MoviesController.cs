@@ -12,8 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace BlazorApp.Server.Controllers
 {
     [Route("api/[controller]")]
@@ -135,6 +133,43 @@ namespace BlazorApp.Server.Controllers
             context.Add(movie);
             await context.SaveChangesAsync();
             return movie.Id;
+        }
+
+        [HttpPost("filter")]
+        public async Task<ActionResult<List<Movie>>> Filter(FilterMoviesDTO filterMoviesDTO)
+        {
+            var moviesQueryable = context.Movies.AsQueryable();
+
+            if(!string.IsNullOrWhiteSpace(filterMoviesDTO.Title))
+            {
+                moviesQueryable = moviesQueryable
+                    .Where(x => x.Title.Contains(filterMoviesDTO.Title));
+            }
+
+            if(filterMoviesDTO.InTheatres)
+            {
+                moviesQueryable = moviesQueryable.Where(x => x.InTheatres);
+            }
+
+            if(filterMoviesDTO.UpcomingReleases)
+            {
+                var today = DateTime.Today;
+                moviesQueryable = moviesQueryable.Where(x => x.ReleaseDate > today);
+            }
+
+            if(filterMoviesDTO.GenreId != 0)
+            {
+                moviesQueryable = moviesQueryable
+                    .Where(x => x.MovieGenres.Select(y => y.GenreId)
+                    .Contains(filterMoviesDTO.GenreId));
+            }
+
+            await HttpContext.InsertPaginationParametersInResponse(moviesQueryable, 
+                filterMoviesDTO.RecordsPerPage);
+
+            var movies = await moviesQueryable.Paginate(filterMoviesDTO.Pagination).ToListAsync();
+
+            return movies;
         }
 
         // POST api/<MoviesController>

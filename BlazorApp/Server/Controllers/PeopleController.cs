@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using AutoMapper;
 using BlazorApp.Server.DB;
@@ -47,12 +48,23 @@ namespace BlazorApp.Server.Controllers
 
         // GET api/<PeopleController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Person>> Get(int id)
+        public async Task<ActionResult<PersonDetailsDTO>> Get(int id)
         {
-            var person = await context.People.FirstOrDefaultAsync(x => x.Id == id);
+            var person = await context.People
+                .Where(x => x.Id == id)
+                .Include(x => x.MovieActors).ThenInclude(x => x.Movie)
+                .FirstOrDefaultAsync();
             if (person == null) return NotFound();
 
-            return person;
+            person.MovieActors = person.MovieActors.OrderByDescending(x => x.Movie.ReleaseDate).ToList();
+
+            var model = new PersonDetailsDTO()
+            {
+                Person = person,
+                Movies = person.MovieActors.Select(x => x.Movie).ToList()
+            };
+
+            return model;
         }
 
         [HttpGet("search/{searchText}")]

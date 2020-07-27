@@ -16,7 +16,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        person = await personRepository.GetPersonById(PersonId);
+        var model = await personRepository.GetPersonById(PersonId);
+        person = model.Person;
     }
 
     private async Task Edit()

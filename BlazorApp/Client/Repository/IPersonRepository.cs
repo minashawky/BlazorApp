@@ -12,7 +12,7 @@ namespace BlazorApp.Client.Repository
         Task CreatePerson(Person person);
         Task<PaginatedResponse<List<Person>>> GetPeople(PaginationDTO paginationDTO);
         Task<List<Person>> GetPeopleByName(string name);
-        Task<Person> GetPersonById(int id);
+        Task<PersonDetailsDTO> GetPersonById(int id);
         Task UpdatePerson(Person person);
         Task DeletePerson(int id);
     }

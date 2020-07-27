@@ -1,0 +1,60 @@
+﻿@page "/person/{PersonId:int}"
+@page "/person/{PersonId:int}/{PersonName}"
+@inject IPersonRepository personRepository
+
+@if (model == null)
+{
+    <text>Loading...</text>
+}
+else
+{
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src="@model.Person.Picture" alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">@model.Person.Name</h5>
+                    <p class="card-text"><a class="btn btn-success" href="/person/edit/@model.Person.Id">Edit</a></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Biography</h5>
+                    <p class="card-text"><RenderMarkdown MarkdownContent="@model.Person.Biography" /></p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Movies</h5>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in model.Movies)
+                        {
+                            <li class="list-group-item">
+                                <a href="movie/@item.Id/@item.Title.Replace(" ", "-")">
+                                    @item.ReleaseDate.Value.ToString("yyyy-MMM-dd") - @item.Title
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@code {
+
+    [Parameter] public int PersonId { get; set; }
+    [Parameter] public string PersonName { get; set; }
+
+    private PersonDetailsDTO model;
+
+    protected override async Task OnInitializedAsync()
+    {
+        model = await personRepository.GetPersonById(PersonId);
+    }
+
+}
